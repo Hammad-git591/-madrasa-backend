@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pymongo
+langchain
+langchain-google-genai
+google-generativeai
+langgraph
+python-dotenv
+twilio
+reportlab
