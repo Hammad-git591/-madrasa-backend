@@ -40,9 +40,9 @@ def fix_ids(docs):
 # ─────────────────────────────────────────
 # TEST
 # ─────────────────────────────────────────
-@app.get("/")
-def home():
-    return {"message": "Al-Noor Madrasa API Chal Rahi Hai! 🕌"}
+@app.get("/api/")
+def api_home():
+    return {"message": "Al-Noor Madrasa API! 🕌"}
 
 
 # ─────────────────────────────────────────
