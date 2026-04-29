@@ -5,6 +5,7 @@ langchain
 langchain-google-genai
 google-generativeai
 langgraph
+langchain-core
 python-dotenv
-twilio
 reportlab
+dnspython
