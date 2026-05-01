@@ -18,7 +18,7 @@ load_dotenv()
 # LLM — Gemini
 # ─────────────────────────────────────────
 llm = ChatGoogleGenerativeAI(
-    model="Gemini 1.5 Flash",
+    model="gemini-1.5-flash",
     google_api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.7
 )
