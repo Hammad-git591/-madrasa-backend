@@ -18,11 +18,11 @@ load_dotenv()
 # LLM — Gemini
 # ─────────────────────────────────────────
 llm = ChatGoogleGenerativeAI(
-    model="gemini-flash-latest",
+    model="gemini-2.0-flash",
     google_api_key=os.getenv("GEMINI_API_KEY"),
-    temperature=0.7
+    temperature=0.7,
+    convert_system_message_to_human=True
 )
-
 # ─────────────────────────────────────────
 # TOOLS
 # ─────────────────────────────────────────
@@ -202,22 +202,50 @@ Respectful tone rakhein.
 
 def run_agent(user_message: str, session_id: str) -> str:
     try:
-        # History load karo
         history = get_history(session_id)
 
-        # Messages banao
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        messages = []
         
+        # System message alag bhejo
+        system = SYSTEM_PROMPT
+        
+        # History add karo
         for h in history[-10:]:
-            messages.append({
-                "role": h["role"],
-                "content": h["content"]
-            })
+            if h["role"] == "user":
+                messages.append(HumanMessage(content=h["content"]))
+            else:
+                messages.append(AIMessage(content=h["content"]))
         
-        messages.append({
-            "role": "user",
-            "content": user_message
-        })
+        # Naya message
+        messages.append(HumanMessage(content=user_message))
+
+        # Gemini call karo
+        response = llm_with_tools.invoke(messages)
+        
+        # Reply extract karo
+        if hasattr(response, 'content'):
+            reply = response.content
+        else:
+            reply = str(response)
+            
+        # Agar list hai toh text nikalo
+        if isinstance(reply, list):
+            reply = ' '.join([
+                item.get('text', '') 
+                if isinstance(item, dict) 
+                else str(item) 
+                for item in reply
+            ])
+
+        # History save karo
+        save_message(session_id, "user", user_message)
+        save_message(session_id, "assistant", str(reply))
+
+        return str(reply)
+
+    except Exception as e:
+        print(f"Agent Error: {e}")
+        return f"Maafi, kuch masla aa gaya: {str(e)}"
 
         # Gemini call karo
         response = llm_with_tools.invoke(messages)
