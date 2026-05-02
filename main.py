@@ -139,10 +139,22 @@ def monthly_admissions():
 # ─────────────────────────────────────────
 @app.post("/api/appointment")
 def book_appointment(data: dict):
+    # Agar qari_id nahi hai toh error mat do
+    qari_id = data.get("qari_id", "")
+    date = data.get("date", "")
+    time_slot = data.get("time_slot", "")
+    
+    if not qari_id or not date or not time_slot:
+        return {
+            "status": "error",
+            "message": "Qari, date aur time slot zaroori hai!"
+        }
+    
+    # Double booking check
     clash = appointments_col.find_one({
-        "qari_id": data["qari_id"],
-        "date": data["date"],
-        "time_slot": data["time_slot"],
+        "qari_id": qari_id,
+        "date": date,
+        "time_slot": time_slot,
         "status": "confirmed"
     })
     if clash:
@@ -150,10 +162,14 @@ def book_appointment(data: dict):
             "status": "unavailable",
             "message": "Yeh slot already booked hai!"
         }
+    
     data["date_added"] = datetime.now().isoformat()
     data["status"] = "confirmed"
     result = appointments_col.insert_one(data)
-    return {"status": "success", "id": str(result.inserted_id)}
+    return {
+        "status": "success", 
+        "id": str(result.inserted_id)
+    }
 
 @app.get("/api/appointments")
 def get_appointments():
